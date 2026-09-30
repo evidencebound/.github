@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -133,6 +134,9 @@ def _verify_freeze(contract: dict[str, Any], repo_root: Path) -> list[dict[str, 
     freeze_id = freeze.get("freeze_id")
     if not isinstance(freeze_id, str) or not freeze_id:
         raise ContractError("frozen phase requires freeze_id")
+    expected_source_sha = freeze.get("source_sha")
+    if not isinstance(expected_source_sha, str) or not re.fullmatch(r"[0-9a-fA-F]{40,64}", expected_source_sha):
+        raise ContractError("frozen phase requires freeze.source_sha as an exact git commit SHA")
     identities = freeze.get("identities")
     if not isinstance(identities, list) or not identities:
         raise ContractError("frozen phase requires at least one identity")
@@ -145,6 +149,8 @@ def _verify_freeze(contract: dict[str, Any], repo_root: Path) -> list[dict[str, 
         expected = item.get("sha256")
         if not all(isinstance(v, str) and v for v in (name, rel, expected)):
             raise ContractError("freeze identity requires name, path, sha256")
+        if not re.fullmatch(r"[0-9a-fA-F]{64}", expected):
+            raise ContractError(f"{name}: sha256 must be an exact 64-hex digest")
         actual = _sha256_tree(repo_root / rel)
         results.append(
             {
@@ -155,6 +161,16 @@ def _verify_freeze(contract: dict[str, Any], repo_root: Path) -> list[dict[str, 
                 "match": actual == expected,
             }
         )
+    actual_source_sha = _source_identity(repo_root)
+    results.append(
+        {
+            "name": "source_sha",
+            "path": "git:HEAD",
+            "expected_sha256": expected_source_sha,
+            "actual_sha256": actual_source_sha,
+            "match": actual_source_sha == expected_source_sha,
+        }
+    )
     return results
 
 
