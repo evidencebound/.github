@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "repository": "OWNER/PRIVATE-RESEARCH-REPOSITORY",
+  "policy": {
+    "development": "required",
+    "frozen": "required"
+  },
+  "bootstrap": [
+    {
+      "id": "install-dev",
+      "command": "python -m pip install -e '.[dev]'",
+      "timeout_seconds": 900
+    }
+  ],
+  "suites": [
+    {
+      "id": "development-regression",
+      "phase": "development",
+      "command": "pytest -q",
+      "hard_gate": true,
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "negative-control",
+      "phase": "frozen",
+      "command": "python benchmark/run_negative_control.py",
+      "hard_gate": true,
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "controlled-runs",
+      "phase": "frozen",
+      "command": "python benchmark/run_controlled.py",
+      "hard_gate": true,
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "independent-verifier",
+      "phase": "frozen",
+      "command": "python benchmark/verify.py",
+      "hard_gate": true,
+      "timeout_seconds": 600
+    }
+  ],
+  "freeze": {
+    "enabled": true,
+    "freeze_id": "REPLACE_WITH_PRECOMMITTED_FREEZE_ID",
+    "source_sha": "REPLACE_WITH_EXACT_40_HEX_COMMIT_SHA",
+    "identities": [
+      {
+        "name": "protocol",
+        "path": "benchmark/protocol.json",
+        "sha256": "REPLACE_WITH_64_HEX_SHA256"
+      },
+      {
+        "name": "holdout-cases",
+        "path": "benchmark/holdout",
+        "sha256": "REPLACE_WITH_64_HEX_TREE_SHA256"
+      },
+      {
+        "name": "verifier",
+        "path": "benchmark/verify.py",
+        "sha256": "REPLACE_WITH_64_HEX_SHA256"
+      }
+    ]
+  }
+}
