@@ -135,8 +135,15 @@ def _verify_freeze(contract: dict[str, Any], repo_root: Path) -> list[dict[str, 
     if not isinstance(freeze_id, str) or not freeze_id:
         raise ContractError("frozen phase requires freeze_id")
     expected_source_sha = freeze.get("source_sha")
-    if not isinstance(expected_source_sha, str) or not re.fullmatch(r"[0-9a-fA-F]{40,64}", expected_source_sha):
-        raise ContractError("frozen phase requires freeze.source_sha as an exact git commit SHA")
+    expected_source_ref = freeze.get("source_ref")
+    if expected_source_sha is not None:
+        if not isinstance(expected_source_sha, str) or not re.fullmatch(r"[0-9a-fA-F]{40,64}", expected_source_sha):
+            raise ContractError("freeze.source_sha must be an exact git commit SHA when present")
+    if expected_source_ref is not None:
+        if not isinstance(expected_source_ref, str) or not expected_source_ref.startswith("refs/tags/"):
+            raise ContractError("freeze.source_ref must be an exact refs/tags/... ref when present")
+    if expected_source_sha is None && expected_source_ref is None:
+        raise ContractError("frozen phase requires freeze.source_sha or freeze.source_ref")
     identities = freeze.get("identities")
     if not isinstance(identities, list) or not identities:
         raise ContractError("frozen phase requires at least one identity")
@@ -162,15 +169,28 @@ def _verify_freeze(contract: dict[str, Any], repo_root: Path) -> list[dict[str, 
             }
         )
     actual_source_sha = _source_identity(repo_root)
-    results.append(
-        {
-            "name": "source_sha",
-            "path": "git:HEAD",
-            "expected_source_sha": expected_source_sha,
-            "actual_source_sha": actual_source_sha,
-            "match": actual_source_sha == expected_source_sha,
-        }
-    )
+    if expected_source_sha is not None:
+        results.append(
+            {
+                "name": "source_sha",
+                "path": "git:HEAD",
+                "expected_source_sha": expected_source_sha,
+                "actual_source_sha": actual_source_sha,
+                "match": actual_source_sha == expected_source_sha,
+            }
+        )
+    if expected_source_ref is not None:
+        actual_source_ref = os.environ.get("GITHUB_REF")
+        results.append(
+            {
+                "name": "source_ref",
+                "path": "git:ref",
+                "expected_source_ref": expected_source_ref,
+                "actual_source_ref": actual_source_ref,
+                "actual_source_sha": actual_source_sha,
+                "match": actual_source_ref == expected_source_ref,
+            }
+        )
     return results
 
 
