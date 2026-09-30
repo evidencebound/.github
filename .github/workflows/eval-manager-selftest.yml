@@ -1,0 +1,32 @@
+name: Eval Manager Self-Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "eval-manager/**"
+      - ".github/workflows/eval-development.yml"
+      - ".github/workflows/eval-frozen.yml"
+      - ".github/workflows/eval-manager-selftest.yml"
+  pull_request:
+    paths:
+      - "eval-manager/**"
+      - ".github/workflows/eval-development.yml"
+      - ".github/workflows/eval-frozen.yml"
+      - ".github/workflows/eval-manager-selftest.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+      - name: Run Eval Manager contract tests
+        run: python eval-manager/test_eval_manager.py
