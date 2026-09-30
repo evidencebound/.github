@@ -29,4 +29,6 @@ jobs:
         with:
           python-version: "3.11"
       - name: Run Eval Manager contract tests
-        run: python eval-manager/test_eval_manager.py
+        run: |
+          python eval-manager/test_eval_manager.py
+          python eval-manager/test_activate.py
