@@ -1,0 +1,67 @@
+name: EvidenceBound Eval / Development
+
+on:
+  workflow_call:
+    inputs:
+      contract:
+        description: Repository-local eval contract.
+        required: false
+        type: string
+        default: .evidencebound/eval.json
+      python_version:
+        description: Python used by Eval Manager and repository bootstrap.
+        required: false
+        type: string
+        default: "3.11"
+      runner_json:
+        description: JSON array accepted by runs-on.
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    name: eval-development
+    runs-on: ${{ fromJSON(inputs.runner_json) }}
+    timeout-minutes: 45
+    steps:
+      - name: Checkout caller repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: workspace
+          persist-credentials: false
+
+      - name: Checkout Eval Manager
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: evidencebound/.github
+          ref: main
+          path: _eval_manager
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Run repository development eval
+        shell: bash
+        run: |
+          set -euo pipefail
+          python _eval_manager/eval-manager/eval_manager.py \
+            --repo-root workspace \
+            --contract "${{ inputs.contract }}" \
+            --phase development \
+            --receipt .evidencebound/eval-receipt.json
+
+      - name: Publish eval receipt
+        if: always() && hashFiles('workspace/.evidencebound/eval-receipt.json') != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: eval-development-${{ github.run_id }}-${{ github.run_attempt }}
+          path: workspace/.evidencebound/eval-receipt.json
+          if-no-files-found: error
+          retention-days: 30
