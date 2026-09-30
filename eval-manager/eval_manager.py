@@ -166,8 +166,8 @@ def _verify_freeze(contract: dict[str, Any], repo_root: Path) -> list[dict[str, 
         {
             "name": "source_sha",
             "path": "git:HEAD",
-            "expected_sha256": expected_source_sha,
-            "actual_sha256": actual_source_sha,
+            "expected_source_sha": expected_source_sha,
+            "actual_source_sha": actual_source_sha,
             "match": actual_source_sha == expected_source_sha,
         }
     )
