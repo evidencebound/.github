@@ -140,8 +140,17 @@ def _verify_freeze(contract: dict[str, Any], repo_root: Path) -> list[dict[str, 
         if not isinstance(expected_source_sha, str) or not re.fullmatch(r"[0-9a-fA-F]{40,64}", expected_source_sha):
             raise ContractError("freeze.source_sha must be an exact git commit SHA when present")
     if expected_source_ref is not None:
-        if not isinstance(expected_source_ref, str) or not expected_source_ref.startswith("refs/tags/"):
-            raise ContractError("freeze.source_ref must be an exact refs/tags/... ref when present")
+        valid_ref = (
+            isinstance(expected_source_ref, str)
+            and (
+                expected_source_ref.startswith("refs/tags/")
+                or expected_source_ref.startswith("refs/heads/freeze/")
+            )
+        )
+        if not valid_ref:
+            raise ContractError(
+                "freeze.source_ref must be refs/tags/... or refs/heads/freeze/..."
+            )
     if expected_source_sha is None && expected_source_ref is None:
         raise ContractError("frozen phase requires freeze.source_sha or freeze.source_ref")
     identities = freeze.get("identities")
