@@ -151,7 +151,7 @@ def _verify_freeze(contract: dict[str, Any], repo_root: Path) -> list[dict[str, 
             raise ContractError(
                 "freeze.source_ref must be refs/tags/... or refs/heads/freeze/..."
             )
-    if expected_source_sha is None && expected_source_ref is None:
+    if expected_source_sha is None and expected_source_ref is None:
         raise ContractError("frozen phase requires freeze.source_sha or freeze.source_ref")
     identities = freeze.get("identities")
     if not isinstance(identities, list) or not identities:
