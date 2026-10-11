@@ -13,7 +13,6 @@ The core design principle is simple: an AI system should not be able to grant it
 | [evidencebound-core](https://github.com/evidencebound/evidencebound-core) | Framework-agnostic runtime for evidence/provenance binding, deterministic verification, policy enforcement and fail-closed selective recovery. |
 | [evidencebound-recovery-mesh](https://github.com/evidencebound/evidencebound-recovery-mesh) | Trust-aware selective recovery for autonomous agent fleets after a trust break. |
 | [evidencebound-authority-cut](https://github.com/evidencebound/evidencebound-authority-cut) | Reversible autonomy with human authority kept outside the model-callable surface and correction propagated through affected descendants. |
-| [evidencebound-releaseproof-dws](https://github.com/evidencebound/evidencebound-releaseproof-dws) | Differential reverification for changed document evidence under a frozen historical review-equivalence policy. |
 
 ## What EvidenceBound is designed to preserve
 
@@ -27,7 +26,7 @@ The core design principle is simple: an AI system should not be able to grant it
 ## Public identity
 
 - Website: [evidencebound.org](https://evidencebound.org)
-- Maintainer: [Ruslan Vrublevskyi](https://github.com/moneyparking)
+- Maintainer: [Ruslan Vrublevskyi](https://github.com/Evalbound)
 - Contact: `ruslan@evidencebound.org`
 - LinkedIn: [Ruslan Vrublevskyi](https://www.linkedin.com/in/ruslan-vrublevskyi)
 
